@@ -1,0 +1,61 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutTrangChu.cshtml";
+}
+@using project.Models
+@{
+    List<int> list_wish_list = ViewBag.list_wish_list as List<int>;
+}
+@functions {
+    public MyDbContext db = new MyDbContext();
+    public ItemProduct GetProduct(int id)
+    {
+        ItemProduct record = db.Products.Where(item => item.Id == id).FirstOrDefault();
+        return record;
+    }
+}
+@if (list_wish_list != null)
+{
+    <div class="container">
+
+        <div class=" main-content-area" style="margin-top:15px; min-height: 700px;">
+            <div class="wrap-iten-in-cart">
+                <h3 class="box-title">Wishlist</h3>
+                <ul class="products-cart">
+                    <li class="pr-cart-item">
+                        <div class="product-image"></div>
+                        <div class="product-name">
+                            <p class="Total price" style="font-weight: bold; font-size:14px;">Name</p>
+                        </div>
+                        <div class="price-field produtc-price"><p class="price">price</p></div>
+                        <div>
+                        </div>
+                    </li>
+                    @foreach (var item in list_wish_list)
+                    {
+                        var product = GetProduct(item);
+                        <li class="pr-cart-item">
+                            <div class="product-image">
+                                <figure><img src="~/Upload/Products/@product.Photo" alt=""></figure>
+                            </div>
+                            <div class="product-name">
+                                <a class="link-to-product" href="/Products/Detail/@product.Id">@product.Name</a>
+                            </div>
+                            <div class="price-field produtc-price"><p class="price">$@string.Format("{0:#,#.}",(product.Price - (product.Price * product.Discount)/100))</p></div>
+                            <div style="position:relative;">
+                                <a href="/WishList/Remove/@product.Id" class="btn btn-delete" title="Remove" style="position:absolute; top:5px; left:-25px;">
+                                    <i class="fa fa-times-circle" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+
+        </div><!--end main content area-->
+    </div>
+}
+else
+{
+    <h2 style="text-align:center">Chưa có sản phẩm yêu thích</h2>
+}

@@ -1,0 +1,37 @@
+﻿@{
+    //load file layout vao day
+    Layout = "~/Areas/Admin/Views/Shared/Layout.cshtml";
+}
+@*
+    - Neu Model la kieu List thi tac dong ten cot se co dang: Model.tencot
+    - Neu Model la kieu DataRow thi tac dong ten cot se co dang: Model["tencot"]
+*@
+@using project.Models
+@functions{
+    MyDbContext db = new MyDbContext();
+}
+<div class="col-md-12">
+    <div class="panel panel-primary">
+        <div class="panel-heading">Add edit tag</div>
+        <div class="panel-body">
+            <form method="post" action="">
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Name</div>
+                    <div class="col-md-10">
+                        <input type="text" value="@if (Model != null) {<text>@Model["Name"]</text>}" name="name" class="form-control" required>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-10">
+                        <input type="submit" value="Process" class="btn btn-primary">
+                    </div>
+                </div>
+                <!-- end rows -->
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,98 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutTrangTrong.cshtml";
+}
+@using project.Models
+@functions{
+    public MyDbContext db = new MyDbContext();
+    //lấy tên danh mục sản phẩm -> join 3 bảng với nhau
+    public string GetCategoryName(int _ProductId)
+    {
+        var record = (from category in db.Categories join category_product in db.CategoriesProducts on category.Id equals category_product.CategoryId join product in db.Products on category_product.ProductId equals product.Id where category_product.ProductId == _ProductId select new { category.Name}).FirstOrDefault();
+        /*
+        * select category => lấy tất cả các cột của table Categories
+        * select new { category.Name}) => chỉ lấy cột Name của table Categories
+        */
+        if(record != null)
+        {
+            return record.Name;
+        }
+        return "";
+    }
+    //lấy số sao để hiển thị
+    public int GetStar(int _ProductId, int _Star)
+    {
+        var record = db.Rating.Where(item => item.ProductId == _ProductId && item.Star == _Star).ToList();
+        if(record != null)
+        {
+            return record.Count;
+        }
+        return 0;
+    }
+}
+<div class="wrap-product-detail">
+    <div class="detail-media">
+        <div class="product-gallery" style="width:470px;">
+            &nbsp;
+            <img src="~/Upload/Products/@Model.Photo" alt="product thumbnail" />
+        </div>
+    </div>
+    <div class="detail-info">
+        <div class="stock-info in-stock">
+            <p class="availability">Category: <b>@GetCategoryName(Model.Id)</b></p>
+            <p class="availability">Discount: <b>@Model.Discount %</b></p>
+        </div>
+        <h2 class="product-name">@Model.Name</h2>
+        <div class="wrap-price"><span class="product-price">$@(Model.Price - (Model.Price * Model.Discount)/100)</span></div>
+        <div class="wrap-butons">
+            <div class="col-lg-6"><a href="/Cart/Buy/@Model.Id" class="btn add-to-cart">Add to Cart</a></div>
+            <div class="col-lg-6"><a href="/WishList/Add/@Model.Id" class="btn add-to-cart"><i class="fa fa-heart"></i> Wishlist</a></div>
+        </div>
+        <div style="clear: both;"></div>
+        <div class="product-rating">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <a href="#" class="count-review">(@GetStar(Model.Id,1) review)</a>
+        </div>
+        <div style="clear: both;"></div>
+        <div class="product-rating">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <a href="#" class="count-review">(@GetStar(Model.Id,2) review)</a>
+        </div>
+        <div style="clear: both;"></div>
+        <div class="product-rating">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <a href="#" class="count-review">(@GetStar(Model.Id,3) review)</a>
+        </div>
+        <div style="clear: both;"></div>
+        <div class="product-rating">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <a href="#" class="count-review">(@GetStar(Model.Id,4) review)</a>
+        </div>
+        <div style="clear: both;"></div>
+        <div class="product-rating">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <a href="#" class="count-review">(@GetStar(Model.Id,5) review)</a>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+    <div class="advance-info">
+        <div class="tab-control normal">
+            <a href="#description" class="tab-control-item active">description</a>
+        </div>
+        <div class="tab-contents">
+            <div class="tab-content-item active" id="description">
+                @Html.Raw(Model.Description)
+                @Html.Raw(Model.Content)
+            </div>
+        </div>
+    </div>
+</div>

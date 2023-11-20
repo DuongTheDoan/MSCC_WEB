@@ -1,0 +1,83 @@
+﻿@*nhan dien cac file trong thu muc Models*@
+@using project.Models
+@using X.PagedList.Mvc.Core
+@*khai bao kieu du lieu cua Model*@
+@model X.PagedList.IPagedList<ItemProduct>
+@{
+    Layout = "~/Views/Shared/LayoutTrangTrong.cshtml";
+}
+@functions {
+    public MyDbContext db = new MyDbContext();
+    //lấy tên danh mục tương ứng với id truyền vào
+    public string GetTagName(int TagId)
+    {
+        ItemTag record = db.Tags.Where(item => item.Id == TagId).FirstOrDefault();
+        if (record != null)
+        {
+            return record.Name;
+        }
+        return "";
+    }
+}
+<div class="banner-shop">
+    <a href="#" class="banner-link">
+        <figure><img src="~/Frontend/images/shop-banner.jpg" alt=""></figure>
+    </a>
+</div>
+
+<div class="wrap-shop-control">
+
+    <h1 class="shop-title">Tag name: @GetTagName(ViewBag.tag_id)</h1>
+
+    <div class="wrap-right">
+
+        
+
+
+    </div>
+
+</div><!--end wrap shop control-->
+
+<div class="row">
+
+    <ul class="product-list grid-products equal-container">
+        @foreach (var item in Model)
+        {
+            <li class="col-lg-4 col-md-6 col-sm-6 col-xs-6 ">
+                <div class="product product-style-3 equal-elem ">
+                    <div class="product-thumnail">
+                        <a href="/Products/Detail/@item.Id" title="@item.Name">
+                            <figure><img src="~/Upload/Products/@item.Photo" alt="@item.Name"></figure>
+                        </a>
+                    </div>
+                    <div class="product-info">
+                        <a href="/Products/Detail/@item.Id" class="product-name"><span>@item.Name</span></a>
+                        <div class="wrap-price"><span class="product-price">$@(item.Price - (item.Price * item.Discount) / 100)</span></div>
+                        <!-- rating -->
+                        <div class="wrap-price">
+                            <div class="product-price">
+                                <a href="/Products/Rate/@item.Id?star=1" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                <a href="/Products/Rate/@item.Id?star=2" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                <a href="/Products/Rate/@item.Id?star=3" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                <a href="/Products/Rate/@item.Id?star=4" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                <a href="/Products/Rate/@item.Id?star=5" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                            </div>
+                        </div>
+                        <!-- /rating -->
+                        <a href="/Cart/Buy/@item.Id" class="btn add-to-cart">Add To Cart</a>
+                    </div>
+                </div>
+            </li>
+        }
+
+    </ul>
+
+</div>
+<div class="wrap-pagination-info">
+    <ul class="page-numbers">
+        @for (int i = 1; i <= @Model.PageCount; i++)
+        {
+            <li><a class="page-number-item" href="/Products/Tag/@ViewBag.tag_id?page=@i">@i</a></li>
+        }
+    </ul>
+</div>

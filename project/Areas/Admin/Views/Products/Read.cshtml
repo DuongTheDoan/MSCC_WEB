@@ -1,0 +1,100 @@
+﻿@*nhan dien cac file trong thu muc Models*@
+@using project.Models
+@using X.PagedList.Mvc.Core
+@*khai bao kieu du lieu cua Model*@
+@model X.PagedList.IPagedList<ItemProduct>
+@{
+    //import file Layout.cshtml vao day
+    Layout = "~/Areas/Admin/Views/Shared/Layout.cshtml";
+}
+@functions{
+    public MyDbContext db = new MyDbContext();
+    //ham liet ke cac danh muc san pham
+    public List<ItemCategory> GetCategories(int _ProductId)
+    {
+        //su dung linq de join 3 bang Categories, CategoriesProducts, Products de lay ket qua
+        var result = from item_category in db.Categories join item_category_product in db.CategoriesProducts on item_category.Id equals item_category_product.CategoryId join item_product in db.Products on item_category_product.ProductId equals item_product.Id where item_product.Id == _ProductId select item_category;
+        return result.ToList();
+    }
+    //ham liet ke cac tag
+    public List<ItemTag> GetTags(int _ProductId)
+    {
+        //su dung linq de join 3 bang Tags, TagsProducts, Products de lay ket qua
+        var result = from item_tag in db.Tags join item_tag_product in db.TagsProducts on item_tag.Id equals item_tag_product.TagId join item_product in db.Products on item_tag_product.ProductId equals item_product.Id where item_product.Id == _ProductId select item_tag;
+        return result.ToList();
+    }
+}
+
+<div class="col-md-12">
+    <div style="margin-bottom:5px;">
+        <a href="/Admin/Products/Create" class="btn btn-primary">Create</a>
+    </div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">List Product</div>
+        <div class="panel-body">
+            <table class="table table-bordered table-hover">
+                <tr>
+                <tr>
+                    <th style="width:100px;">Photo</th>
+                    <th>Name</th>
+                    <th style="width:200px;">Categories</th>
+                    <th style="width:200px;">Tags</th>
+                    <th style="width:70px; text-align:center;">Hot</th>
+                    <th style="width:120px;"></th>
+                </tr>
+                </tr>
+                @foreach (var row in Model)
+                {
+                    <tr>
+                        <td>
+                            @* File.Exists(duongdan) tra ve true neu duongdan ton tai, nguoc lai tra ve false *@
+                            @if (!String.IsNullOrEmpty(row.Photo))
+                            {
+                                <img src="~/Upload/Products/@row.Photo" style="width:100px;">
+                            }
+                        </td>
+                        <td>@row.Name</td>
+                        <td>
+                            @{
+                                var list_categories = GetCategories(row.Id);
+                            }
+                            @foreach(var item_category in list_categories)
+                            {
+                                <div>@item_category.Name</div>
+                            }
+                        </td>
+                        <td>
+                            @{
+                                var list_tags = GetTags(row.Id);
+                            }
+                            @foreach(var item_tag  in list_tags)
+                            {
+                                <div>@item_tag.Name</div>
+                            }
+                        </td>
+                        <td style="text-align:center;">
+                            @if (row.Hot == 1)
+                            {
+                                <text>Hot</text>
+                            }
+                        </td>
+                        <td style="text-align:center;">
+                            <a href="/Admin/Products/Update/@row.Id">Edit</a>&nbsp;
+                            <a href="/Admin/Products/Delete/@row.Id" onclick="return window.confirm('Are you sure?');">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </table>
+            <style type="text/css">
+                .pagination {
+                    padding: 0px;
+                    margin: 0px;
+                }
+            </style>
+            @*phan trang bang tay*@
+            @*So trang: @Model.PageCount /
+            Trang hien tai: @Model.PageNumber*@
+            @Html.PagedListPager(Model, page => Url.Action("Read", new { page = page, a = 1, b = 2 }) )
+        </div>
+    </div>
+</div>

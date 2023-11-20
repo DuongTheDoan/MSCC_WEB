@@ -1,0 +1,81 @@
+﻿@*nhan dien cac file trong thu muc Models*@
+@using project.Models
+@using X.PagedList.Mvc.Core
+@*khai bao kieu du lieu cua Model*@
+@model X.PagedList.IPagedList<ItemCategory>
+@{
+    //import file Layout.cshtml vao dayZ
+    Layout = "~/Areas/Admin/Views/Shared/Layout.cshtml";
+}
+@functions{
+    //tao doi tuong thao tac csdl su dung linq
+    public MyDbContext db = new MyDbContext();
+    //lay danh muc cap con
+    public List<ItemCategory> GetSubCategories(int _Id)
+    {
+        List<ItemCategory> list_categories = db.Categories.Where(item => item.ParentId == _Id).OrderByDescending(item => item.Id).ToList();
+        return list_categories;
+    }
+}
+
+<div class="col-md-12">
+    <div style="margin-bottom:5px;">
+        <a href="/Admin/Categories/Create" class="btn btn-primary">Create</a>
+    </div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">List Category</div>
+        <div class="panel-body">
+            <table class="table table-bordered table-hover">
+                <tr>
+                    <th>Name</th>
+                    <th style="width:200px;">Display Home Page</th>
+                    <th style="width:100px;"></th>
+                </tr>
+                @foreach (var row in Model)
+                {
+                    <tr>
+                        <td>@row.Name</td>
+                        <td style="text-align:center;">
+                            @if(row.DisplayHomePage == 1)
+                            {
+                                <text>Display</text>
+                            }
+                        </td>
+                        <td style="text-align:center;">
+                            <a href="/Admin/Categories/Update/@row.Id">Edit</a>&nbsp;
+                            <a href="/Admin/Categories/Delete/@row.Id" onclick="return window.confirm('Are you sure?');">Delete</a>
+                        </td>
+                    </tr>
+                    //Lay cac danh muc cap 1
+                    List<ItemCategory> list_categories = GetSubCategories(row.Id);
+                    foreach (ItemCategory row_sub in list_categories)
+                    {
+                        <tr>
+                            <td style="padding-left:35px;">@row_sub.Name</td>
+                            <td style="text-align:center;">
+                                @if (row_sub.DisplayHomePage == 1)
+                                {
+                                    <text>Display</text>
+                                }
+                            </td>
+                            <td style="text-align:center;">
+                                <a href="/Admin/Categories/Update/@row_sub.Id">Edit</a>&nbsp;
+                                <a href="/Admin/Categories/Delete/@row_sub.Id" onclick="return window.confirm('Are you sure?');">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+            <style type="text/css">
+                .pagination {
+                    padding: 0px;
+                    margin: 0px;
+                }
+            </style>
+            @*phan trang bang tay*@
+            @*So trang: @Model.PageCount /
+            Trang hien tai: @Model.PageNumber*@
+            @Html.PagedListPager(Model, page => Url.Action("Read", new { page = page, a = 1, b = 2 }) )
+        </div>
+    </div>
+</div>

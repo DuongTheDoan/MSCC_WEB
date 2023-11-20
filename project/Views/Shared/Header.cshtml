@@ -1,0 +1,145 @@
+﻿@using project.Models
+@using Newtonsoft.Json
+<header id="header" class="header header-style-1">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="topbar-menu-area">
+				<div class="container">
+					<div class="topbar-menu left-menu">
+						<ul>
+							<li class="menu-item">
+								<a title="Hotline: (+123) 456 789" href="#"><span class="icon label-before fa fa-mobile"></span>Hotline: (+123) 456 789</a>
+							</li>
+						</ul>
+					</div>
+					<div class="topbar-menu right-menu">
+						<ul>
+							@if(String.IsNullOrEmpty(Context.Session.GetString("customer_email")))
+							{
+							<li class="menu-item"><a title="Register or Login" href="/Account/Login">Login</a></li>
+							<li class="menu-item"><a title="Register or Login" href="/Account/Register">Register</a></li>
+							}
+							else
+							{
+							<li class="menu-item"><a title="Register or Login" href="#">Xin chào @Context.Session.GetString("customer_email")</a></li>
+								<li class="menu-item"><a title="Đơn hàng" href="/Account/Orders">Đơn hàng của tôi</a></li>
+							<li class="menu-item"><a title="Register or Login" href="/Account/Logout">Logout</a></li>
+							}
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="container">
+				<div class="mid-section main-info-area">
+
+					<div class="wrap-logo-top left-section">
+						<a href="index.html" class="link-to-home"><img src="~/Frontend/images/logo-top-1.png" alt="mercado"></a>
+					</div>
+
+					<div class="wrap-search center-section">
+						<div class="wrap-search-form">
+							<input type="text" onkeyup="search();" name="search" id="key" value="" autocomplete="off" placeholder="Search here...">
+							<button form="form-search-top" type="button" onclick="location.href='/Products/SearchName?key='+document.getElementById                                      ('key').value;"><i class="fa fa-search" aria-hidden="true"></i></button>
+							<div id="smart-search">
+								<ul>
+									@*<li><a href=""><img src="http://localhost/Upload/Products/133347662331329152_digital_02.jpg" />product 1</a></li>
+									<li><a href=""><img src="http://localhost/Upload/Products/133347662331329152_digital_02.jpg" />product 1</a></li>
+									<li><a href=""><img src="http://localhost/Upload/Products/133347662331329152_digital_02.jpg" />product 1</a></li>*@
+								</ul>
+							</div>
+						</div>
+					</div>
+					<style>
+						/*đặt cha làm điểm tựa để id="smart-search" căn theo*/
+						.wrap-search-form{position:relative;}
+						/*con căn theo điểm tựa bên ngoài*/
+						#smart-search{position:absolute; width:450px; background:white; z-index:100; top:50px; display:none; height:200px;										overflow:scroll;}
+						#smart-search img{width:70px; margin-right:5px;}
+						#smart-search ul{padding:0px; margin:0px; list-style:none; text-align:left;}
+						#smart-search ul li{border-bottom:1px solid #dddddd;}
+					</style>
+					<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+					<script>
+						//phải kiểm xem jquery đã load được vào trang chưa, nếu chưa thì phải load jquery (vì sử dụng jquery ajax)
+						//$(document).ready(function(){ alert('ok'); });
+						function search(){
+							var key = document.getElementById('key').value;
+							if(key != ''){
+								//hiển thị id=smart-search
+								document.getElementById("smart-search").setAttribute("style","display:block;");
+								//sử dụng jquery ajax get để lấy dữ liệu
+								$.get("http://localhost:5168/Products/AjaxSearch?key=" + key, function (data) {
+									//xóa các thẻ li
+									//alert(data)
+									$("#smart-search ul").empty();
+									//thêm kết quả mới lấy được từ ajax
+								$("#smart-search ul").append(data);
+								});
+							}else{
+								document.getElementById("smart-search").setAttribute("style", "display:none;");
+							}
+						}
+					</script>
+					<div class="wrap-icon right-section">
+						<div class="wrap-icon-section wishlist">
+							<a href="/WishList" class="link-direction">
+								<i class="fa fa-star" aria-hidden="true"></i>
+								<div class="left-info">
+									@{
+										string str_wish_list = Context.Session.GetString("wish_list");
+										List<int> list_wish_list = new List<int>();
+										if (!string.IsNullOrEmpty(str_wish_list))
+										{
+											list_wish_list = JsonConvert.DeserializeObject<List<int>>(str_wish_list);
+										}
+									}
+									<span class="index">@list_wish_list.Count item</span>
+									<span class="title">Wishlist</span>
+								</div>
+							</a>
+						</div>
+						<div class="wrap-icon-section minicart">
+							<a href="/Cart" class="link-direction">
+								<i class="fa fa-shopping-basket" aria-hidden="true"></i>
+								<div class="left-info">
+									<span class="index">@Cart.CartQuantity(Context.Session) items</span>
+									<span class="title">CART</span>
+								</div>
+							</a>
+						</div>
+						<div class="wrap-icon-section show-up-after-1024">
+							<a href="#" class="mobile-navigation">
+								<span></span>
+								<span></span>
+								<span></span>
+							</a>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="nav-section header-sticky">
+				<div class="primary-nav-section">
+					<div class="container">
+						<ul class="nav primary clone-main-menu" id="mercado_main" data-menuname="Main menu">
+							<li class="menu-item home-icon">
+								<a href="/" class="link-term mercado-item-title"><i class="fa fa-home" aria-hidden="true"></i></a>
+							</li>
+							<li class="menu-item">
+								<a href="/Products/Categories" class="link-term mercado-item-title">Shop</a>
+							</li>
+							<li class="menu-item">
+								<a href="/Cart" class="link-term mercado-item-title">Cart</a>
+							</li>
+							<li class="menu-item">
+								<a href="/Contact" class="link-term mercado-item-title">Contact Us</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</header>

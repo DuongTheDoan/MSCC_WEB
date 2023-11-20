@@ -1,0 +1,91 @@
+﻿@using System.Data
+@using Microsoft.Data.SqlClient
+@using System.Text.Json
+@{
+    //import file Layout.cshtml vao day
+    Layout = "~/Areas/Admin/Views/Shared/Layout.cshtml";
+}
+@{
+    /*
+     * do trong Controller truyen ra DataTable nen Model tuong duong voi Data Table
+     * Cau truc cua bien DataList: tenbien.tencot
+     * Cau truc cua bien DataTable: tenbien["tencot"]
+     */
+    //Model.Rows[0]["Name"] co nghia la lay hang dau tien cua bien DataTable
+    string _Name = Model != null ? Model.Rows[0]["Name"].ToString() : "";
+    int _ParentId = Model != null ? Convert.ToInt32(Model.Rows[0]["ParentId"].ToString()) : 0;
+}
+@functions {
+    //liet ke cac danh muc cap 0 (su dung ADO)
+    public DataTable GetCategories()
+    {
+        DataTable dtCategories = new DataTable();
+        //---
+        var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json").Build();
+        string strConnectionString = config.GetConnectionString("MyConnectionString").ToString();
+        //---
+        using (SqlConnection conn = new SqlConnection(strConnectionString))
+        {
+            //Tạo đối tượng DataAdapter để truyền câu lệnh sql và lấy kết quả trả về
+            SqlDataAdapter da = new SqlDataAdapter("select * from Categories where ParentId = 0 order by Id desc", conn);
+            //Fill dữ liệu từ da vào DataTable
+            da.Fill(dtCategories);
+        }
+        //---
+        return dtCategories;
+    }    
+}
+<div class="col-md-12">
+    <div class="panel panel-primary">
+        <div class="panel-heading">Add edit category</div>
+        <div class="panel-body">
+            <form method="post" action="@ViewBag.action">
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Name</div>
+                    <div class="col-md-10">
+                        <input type="text" value="@_Name" name="Name" class="form-control">
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Danh muc cha</div>
+                    <div class="col-md-10">
+                        <select class="form-control" name="ParentId" style="width:250px;">
+                            <option value="0"></option>
+                            @{
+                                DataTable categories = GetCategories();
+                            }
+                            @foreach (DataRow row in categories.Rows)
+                            {
+                                string str_selected = Model != null && Convert.ToInt32(row["Id"]) == Convert.ToInt32(Model.Rows[0]["ParentId"]) ? "selected" : "";
+                                <option @str_selected value="@row["Id"]">@row["Name"]</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-10">
+                        <input type="checkbox" @if (Model != null && Convert.ToInt32(Model.Rows[0]["DisplayHomePage"]) == 1)
+                        {
+                            <text>checked</text>
+                        } name="DisplayHomePage" id="DisplayHomePage"> <label for="DisplayHomePage">Hiển thị danh mục này ở trang chủ</label>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-10">
+                        <input type="submit" value="Process" class="btn btn-primary">
+                    </div>
+                </div>
+                <!-- end rows -->
+            </form>
+        </div>
+    </div>
+</div>

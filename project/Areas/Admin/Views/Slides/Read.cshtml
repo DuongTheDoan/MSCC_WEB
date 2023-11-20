@@ -1,0 +1,57 @@
+﻿@{
+    //load file Layout.cshtml vao day
+    Layout = "~/Areas/Admin/Views/Shared/Layout.cshtml";
+}
+@* de phan trang thi phai using cac doi tuong sau *@
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+@* doi tuong thao tac file *@
+@using System.IO
+@* nhin thay file MyDbContext *@
+@using project.Models
+@functions{
+    public MyDbContext db = new MyDbContext();
+}
+<div class="col-md-12">
+    <div style="margin-bottom:5px;">
+        <a href="/Admin/Slides/Create" class="btn btn-primary">Add slide</a>
+    </div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">List slide</div>
+        <div class="panel-body">
+            <table class="table table-bordered table-hover">
+                <tr>
+                    <th style="width:100px;">Photo</th>
+                    <th>Name</th>
+                    <th style="width:100px;"></th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @* File.Exists -> kiem tra file co ton tai khong *@
+                            @* Directory.GetCurrentDirectory() -> lay duong dan thu muc *@
+                            @if (item.Photo != null && File.Exists(Directory.GetCurrentDirectory() + "\\wwwroot\\Upload\\Slides\\" + item.Photo))
+                            {
+                                <img src="~/Upload/Slides/@item.Photo" style="width:100px;" />
+                            }
+                        </td>
+                        <td>@item.Name</td>
+                        <td style="text-align:center;">
+                            <a href="/Admin/Slides/Update/@item.Id">Edit</a>&nbsp;
+                            <a href="/Admin/Slides/Delete/@item.Id" onclick="return window.confirm('Are you sure?');">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </table>
+            <style type="text/css">
+                .pagination {
+                    padding: 0px;
+                    margin: 0px;
+                }
+            </style>
+            @* ham sau se thuc hien viec hien thi phan trang *@
+            @Html.PagedListPager((IPagedList)Model, p => Url.Action("Index", new { page = p }))
+        </div>
+    </div>
+</div>

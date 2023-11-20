@@ -1,0 +1,74 @@
+﻿@{
+    //load file layout vao day
+    Layout = "~/Areas/Admin/Views/Shared/Layout.cshtml";
+}
+@using project.Models
+@functions{
+    public MyDbContext db = new MyDbContext();
+}
+<div class="col-md-12">
+    <div class="panel panel-primary">
+        <div class="panel-heading">Add edit slide</div>
+        <div class="panel-body">
+            @* muon upload duoc file thi phai co thuoc tinh enctype=mulipart/form-data *@
+            <form method="post" enctype="multipart/form-data" action="">
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Name</div>
+                    <div class="col-md-10">
+                        <input type="text" value="@if (Model != null) {<text>@Model.Name</text>}" name="Name" class="form-control" required>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Title</div>
+                    <div class="col-md-10">
+                        <input type="text" value="@if (Model != null) {<text>@Model.Title</text>}" name="Title" class="form-control" required>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Sub Title</div>
+                    <div class="col-md-10">
+                        <input type="text" value="@if (Model != null) {<text>@Model.SubTitle</text>}" name="SubTitle" class="form-control" required>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Info</div>
+                    <div class="col-md-10">
+                        <input type="text" value="@if (Model != null) {<text>@Model.Info</text>}" name="Info" class="form-control" required>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Link</div>
+                    <div class="col-md-10">
+                        <input type="url" value="@if (Model != null) {<text>@Model.Link</text>}" name="Link" class="form-control" required>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Photo</div>
+                    <div class="col-md-10">
+                        <input type="file" name="Photo" />
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-10">
+                        <input type="submit" value="Process" class="btn btn-primary">
+                    </div>
+                </div>
+                <!-- end rows -->
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,65 @@
+﻿@{
+    //load file Layout.cshtml vao day
+    Layout = "~/Areas/Admin/Views/Shared/Layout.cshtml";
+}
+@* de phan trang thi phai using cac doi tuong sau *@
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+@* doi tuong thao tac file *@
+@using System.IO
+@* nhin thay file MyDbContext *@
+@using project.Models
+@functions{
+    public MyDbContext db = new MyDbContext();
+}
+<div class="col-md-12">
+    <div style="margin-bottom:5px;">
+        <a href="/Admin/Adv/Create" class="btn btn-primary">Add adv</a>
+    </div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">List adv</div>
+        <div class="panel-body">
+            <table class="table table-bordered table-hover">
+                <tr>
+                    <th style="width:100px;">Photo</th>
+                    <th>Name</th>
+                    <th style="width:150px;">Position</th>
+                    <th style="width:100px;"></th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @* File.Exists -> kiem tra file co ton tai khong *@
+                            @* Directory.GetCurrentDirectory() -> lay duong dan thu muc *@
+                            @if (item.Photo != null && File.Exists(Directory.GetCurrentDirectory() + "\\wwwroot\\Upload\\Adv\\" + item.Photo))
+                            {
+                                <img src="~/Upload/Adv/@item.Photo" style="width:100px;" />
+                            }
+                        </td>
+                        <td>@item.Name</td>
+                        <td>
+                            @if (item.Position == 1) { <text>Trái (Dưới slide show)</text> }
+                            @if (item.Position == 2) { <text>Phải (Dưới slide show)</text> }
+                            @if (item.Position == 3) { <text>Trang sản phẩm - Banner</text> }
+                            @if (item.Position == 4) { <text>Trang sản phẩm - Dưới TAG</text> }
+                            @if (item.Position == 5) { <text>Trang sản phẩm - Dưới Popular products</text> }
+                        </td>
+                        <td style="text-align:center;">
+                            <a href="/Admin/Adv/Update/@item.Id">Edit</a>&nbsp;
+                            <a href="/Admin/Adv/Delete/@item.Id" onclick="return window.confirm('Are you sure?');">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </table>
+            <style type="text/css">
+                .pagination {
+                    padding: 0px;
+                    margin: 0px;
+                }
+            </style>
+            @* ham sau se thuc hien viec hien thi phan trang *@
+            @Html.PagedListPager((IPagedList)Model, p => Url.Action("Index", new { page = p }))
+        </div>
+    </div>
+</div>

@@ -1,0 +1,87 @@
+﻿@{
+    Layout = "~/Views/Shared/LayoutTrangChu.cshtml";
+}
+@using project.Models
+<div class="container">
+	@if(!String.IsNullOrEmpty(Context.Request.Query["notify"]))
+	{
+		if (Context.Request.Query["notify"] == "destroy-success")
+		{
+			<h2 style="text-align:center">Đã xóa toàn bộ sản phẩm trong giỏ hàng</h2>
+		}
+		if (Context.Request.Query["notify"] == "checkout-success")
+		{
+			<h2 style="text-align:center">Đã thanh toán giỏ hàng thành công</h2>
+		}
+	}
+	@if (Model.Count > 0)
+	{
+		<div class=" main-content-area" style="margin-top:15px; min-height: 700px;">
+			<form method="post" action="/Cart/Update">
+				<div class="wrap-iten-in-cart">
+					<h3 class="box-title">Shopping cart</h3>
+					<ul class="products-cart">
+						<li class="pr-cart-item">
+							<div class="product-image"></div>
+							<div class="product-name">
+								<p class="Total price" style="font-weight: bold; font-size:14px;">Name</p>
+							</div>
+							<div class="price-field produtc-price"><p class="price">price</p></div>
+							<div class="quantity">
+								<p class="Total price" style="font-weight:bold; font-size:14px;">Quantity</p>
+							</div>
+							<div class="price-field sub-total"><p class="Total price">Total price</p></div>
+							<div>
+							</div>
+						</li>
+						@foreach (Item item_cart in Model)
+						{
+						<li class="pr-cart-item">
+							<div class="product-image">
+								<figure><img src="~/Upload/Products/@item_cart.ProductRecord.Photo" alt=""></figure>
+							</div>
+							<div class="product-name">
+									<a class="link-to-product" href="/Products/Detail/@item_cart.ProductRecord.Id">@item_cart.ProductRecord.Name</a>
+							</div>
+								<div class="price-field produtc-price"><p class="price">$@(item_cart.ProductRecord.Price - (item_cart.ProductRecord.Price * item_cart.ProductRecord.Discount) / 100)</p></div>
+							<div class="quantity">
+								<div class="">
+										<input type="number" name="product_@item_cart.ProductRecord.Id" value="@item_cart.Quantity" data-max="120" pattern="[0-9]*" style="line-height:30px; width:50px; border:1px solid #dddddd;">
+								</div>
+							</div>
+								<div class="price-field sub-total"><p class="price">$@(item_cart.Quantity * (item_cart.ProductRecord.Price - (item_cart.ProductRecord.Price * item_cart.ProductRecord.Discount) / 100))</p></div>
+							<div style="position:relative;">
+									<a href="/Cart/Remove/@item_cart.ProductRecord.Id" class="btn btn-delete" title="Remove" style="position:absolute; top:5px; left:-25px;">
+									<i class="fa fa-times-circle" aria-hidden="true"></i>
+								</a>
+							</div>
+						</li>
+						}
+					</ul>
+				</div>
+				
+				<div class="summary">
+					<div class="order-summary col-lg-4">
+						<h4 class="title-box">Order Summary</h4>
+						<p class="summary-info total-info "><span class="title">Total</span><b class="index">$@Cart.CartTotal(Context.Session)</b></p>
+					</div>
+					<div class="checkout-info col-lg-4">
+						<a class="btn btn-checkout" href="/Cart/CheckOut">Check out</a>
+						<a class="link-to-shop" href="/Home">Continue Shopping<i class="fa fa-arrow-circle-right" aria-hidden="true"></i></a>
+					</div>
+					<div class="update-clear col-lg-4">
+						<a class="btn btn-clear" href="/Cart/Destroy">Clear Shopping Cart</a>
+                        @*<a class="btn btn-update" href="#">Update Shopping Cart</a>*@
+						<input type="submit" class="btn btn-update" value="Update Shopping Cart">
+					</div>
+				</div>
+			</form>
+
+
+		</div><!--end main content area-->
+	}
+	else
+	{
+		<h2 style="text-align:center">Chưa có sản phẩm trong giỏ hàng</h2>
+	}
+</div><!--end container-->

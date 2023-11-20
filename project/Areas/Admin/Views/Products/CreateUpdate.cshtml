@@ -1,0 +1,218 @@
+﻿@using project.Models;
+@{
+    //import file Layout.cshtml vao day
+    Layout = "~/Areas/Admin/Views/Shared/Layout.cshtml";
+}
+@{
+    string _Name = Model != null ? Model.Name : "";
+    string _Description = Model != null ? Model.Description : "";
+    string _Content = Model != null ? Model.Content : "";
+    string _Photo = Model != null ? Model.Photo : "";
+    int _Hot = Model != null && Model.Hot == 1 ? 1 : 0;
+    double _Discount = Model != null ? Model.Discount : 0;
+    double _Price = Model != null ? Model.Price : 0;
+}
+@functions {
+    public MyDbContext db = new MyDbContext();
+    //ham liet ke cac danh muc san pham
+    public List<ItemCategory> GetCategories()
+    {
+        //su dung linq de join 3 bang Categories, CategoriesProducts, Products de lay ket qua
+        var result = db.Categories.Where(item => item.ParentId == 0).OrderByDescending(item => item.Id).ToList();
+        return result;
+    }
+    public List<ItemCategory> GetSubCategories(int _CategoryId)
+    {
+        //su dung linq de join 3 bang Categories, CategoriesProducts, Products de lay ket qua
+        var result = db.Categories.Where(item => item.ParentId == _CategoryId).OrderByDescending(item => item.Id).ToList();
+        return result;
+    }
+    //ham kiem tra danh muc co duoc check khong
+    public bool CheckCategory(int _ProductId, int _CategoryId)
+    {
+        var record = (from item_category in db.Categories join item_category_product in db.CategoriesProducts on item_category.Id equals item_category_product.CategoryId join item_product in db.Products on item_category_product.ProductId equals item_product.Id where item_product.Id == _ProductId && item_category.Id == _CategoryId select item_category).FirstOrDefault();
+        if (record != null)
+        {
+            return true;
+        }
+        return false;
+    }
+    //ham liet ke cac tag
+    public List<ItemTag> GetTags()
+    {
+        //su dung linq de join 3 bang Tags, TagsProducts, Products de lay ket qua
+        var result = db.Tags.OrderByDescending(item => item.Id).ToList();
+        return result;
+    }
+    public bool CheckTag(int _ProductId, int _TagId)
+    {
+        //su dung linq de join 3 bang Tags, TagsProducts, Products de lay ket qua
+        var result = (from item_tag in db.Tags join item_tag_product in db.TagsProducts on item_tag.Id equals item_tag_product.TagId join item_product in db.Products on item_tag_product.ProductId equals item_product.Id where item_product.Id == _ProductId && item_tag.Id == _TagId select item_tag).FirstOrDefault();
+        if (result != null)
+        {
+            return true;
+        }
+        return false;
+    }
+}
+<!-- để load ckeditor vào trang thì phải có dòng dưới -->
+<script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+
+<div class="col-md-12">
+    <div class="panel panel-primary">
+        <div class="panel-heading">Add edit product</div>
+        <div class="panel-body">
+            @* muốn upload được file thì phải có tag enctype="multipart/form-data" *@
+            <form method="post" enctype="multipart/form-data" action="@ViewBag.action">
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Name</div>
+                    <div class="col-md-10">
+                        <input type="text" value="@_Name" name="Name" class="form-control">
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Price</div>
+                    <div class="col-md-10">
+                        <input type="number" name="Price" value="@_Price" />
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Discount</div>
+                    <div class="col-md-10">
+                        @{
+                            string str_discount = "0";
+                            if (Model != null)
+                            {
+                                str_discount = Model.Discount.ToString();
+                            }
+                        }
+                        <input type="number" name="Discount" value="@str_discount" required />
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Categories</div>
+                    <div class="col-md-10">
+                        @{
+                            var list_categories = GetCategories();
+                        }
+                        <!-- neu them thuoc tinh multiple thi co nghia la co the chon duoc nhieu danh muc -->
+                        <select name="Categories" id="Categories" class="form-control" multiple>
+                            @foreach (var item in list_categories)
+                            {
+                                string str_selected = "";
+                                if (Model != null && CheckCategory(Model.Id, item.Id) == true)
+                                {
+                                    str_selected = "selected";
+                                }
+                                <option @str_selected value="@item.Id">@item.Name</option>
+                                //lay cac danh muc con
+                                var list_sub_categories = GetSubCategories(item.Id);
+                                foreach (var item_sub in list_sub_categories)
+                                {
+                                    string str_sub_selected = "";
+                                    if (Model != null && CheckCategory(Model.Id, item_sub.Id) == true)
+                                    {
+                                        str_sub_selected = "selected";
+                                    }
+                                    <option @str_sub_selected value="@item_sub.Id">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @item_sub.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Tags</div>
+                    <div class="col-md-10">
+                        <div style="height:100px; overflow:scroll; border:1px solid #dddddd;">
+                            @{
+                                var list_tags = GetTags();
+                            }
+                            @foreach (var item in list_tags)
+                            {
+                                string str_tag_checked = "";
+                                if(Model != null && CheckTag(Model.Id,item.Id) == true)
+                                {
+                                    str_tag_checked = "checked";
+                                }
+                                <div style="margin-bottom:5px;">
+                                    &nbsp;&nbsp;<input type="checkbox" @str_tag_checked name="Tags" value="@item.Id" id="Tag_@item.Id" /> <label for="Tag_@item.Id">@item.Name</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Photo</div>
+                    <div class="col-md-10">
+                        <input type="file" name="Photo" />
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Description</div>
+                    <div class="col-md-10">
+                        <textarea name="Description" id="Description">@_Description</textarea>
+                        <script>
+                            ClassicEditor
+                                .create(document.querySelector('#Description'))
+                                .catch(error => {
+                                    console.error(error);
+                                });
+                        </script>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Content</div>
+                    <div class="col-md-10">
+                        <textarea name="Content" id="Content">@_Content</textarea>
+                        <script>
+                            ClassicEditor
+                                .create(document.querySelector('#Content'))
+                                .catch(error => {
+                                    console.error(error);
+                                });
+                        </script>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2">Hot</div>
+                    <div class="col-md-10">
+                        @{
+                            string str_checked = "";
+                            if (Model != null && Model.Hot == 1)
+                            {
+                                str_checked = "checked";
+                            }
+                        }
+                        <input type="checkbox" @str_checked name="Hot" id="Hot" /> <label for="Hot">Hot</label>
+                    </div>
+                </div>
+                <!-- end rows -->
+                <!-- rows -->
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-10">
+                        <input type="submit" value="Process" class="btn btn-primary">
+                    </div>
+                </div>
+                <!-- end rows -->
+            </form>
+        </div>
+    </div>
+</div>

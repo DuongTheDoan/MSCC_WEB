@@ -1,0 +1,301 @@
+﻿@using project.Models
+@{
+    Layout = "~/Views/Shared/LayoutTrangChu.cshtml";
+}
+@functions {
+    public MyDbContext db = new MyDbContext();
+    //sản phẩm giảm giá - lấy 8 sản phẩm
+    public List<ItemProduct> GetDiscountProducts()
+    {
+        List<ItemProduct> list_record = db.Products.Where(item => item.Discount > 0).OrderByDescending(item => item.Id).Take(8).ToList();
+        return list_record;
+    }
+    //sản phẩm nổi bật - lấy 8 sản phẩm
+    public List<ItemProduct> GetHotProducts()
+    {
+        List<ItemProduct> list_record = db.Products.Where(item => item.Hot == 1).OrderByDescending(item => item.Id).Take(8).ToList();
+        return list_record;
+    }
+    //các danh mục hiển thị trang chủ (DisplayHomePage = 1)
+    public List<ItemCategory> DisplayHomePageCategories()
+    {
+        List<ItemCategory> list_record = db.Categories.Where(item => item.DisplayHomePage == 1).OrderByDescending(item => item.Id).ToList();
+        return list_record;
+    }
+    //lấy 8 sản phẩm thuộc danh mục
+    public List<ItemProduct> GetProducts(int _CategoryId)
+    {
+        //join 3 table Categories, CategoriesProducts, Products
+        List<ItemProduct> list_record = (from category in db.Categories join category_product in db.CategoriesProducts on category.Id equals category_product.CategoryId join product in db.Products on category_product.ProductId equals product.Id where category_product.CategoryId == _CategoryId select product).Take(8).ToList();
+        return list_record;
+    }
+    //tin tức nổi bật - lấy 5 sản phẩm
+    public List<ItemNews> GetHotNews()
+    {
+        List<ItemNews> list_record = db.News.Where(item => item.Hot == 1).OrderByDescending(item => item.Id).Take(5).ToList();
+        return list_record;
+    }
+    //lấy danh sách ảnh slideshows
+    public List<ItemSlide> GetSlideShows()
+    {
+        List<ItemSlide> list_record = db.Slides.OrderByDescending(item => item.Id).ToList();
+        return list_record;
+    }
+}
+<div class="container">
+
+    <!--MAIN SLIDE-->
+    <div class="wrap-main-slide">
+        <div class="slide-carousel owl-carousel style-nav-1" data-items="1" data-loop="1" data-nav="true" data-dots="false">
+            @{
+                List<ItemSlide> list_slides = GetSlideShows();
+            }
+            @foreach (var item in list_slides)
+            {
+                <div class="item-slide">
+                    <img src="~/Upload/Slides/@item.Photo" alt="" class="img-slide">
+                    <div class="slide-info slide-1">
+                        <h2 class="f-title"><b>@item.Title</b></h2>
+                        <span class="subtitle">@item.SubTitle</span>
+                        <p class="sale-info">@item.Info</p>
+                        <a href="@item.Link" class="btn-link">Shop Now</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!--BANNER-->
+    <div class="wrap-banner style-twin-default">
+        <div class="banner-item">
+            <a href="#" class="link-banner banner-effect-1">
+                <figure><img src="~/Frontend/images/home-1-banner-1.jpg" alt="" width="580" height="190"></figure>
+            </a>
+        </div>
+        <div class="banner-item">
+            <a href="#" class="link-banner banner-effect-1">
+                <figure><img src="~/Frontend/images/home-1-banner-2.jpg" alt="" width="580" height="190"></figure>
+            </a>
+        </div>
+    </div>
+
+    <!--On Sale-->
+    <div class="wrap-show-advance-info-box style-1 has-countdown">
+        <h3 class="title-box">Sản phẩm giảm giá</h3>
+        <div class="wrap-products slide-carousel owl-carousel style-nav-1 equal-container " data-items="5" data-loop="false" data-nav="true" data-dots="false" data-responsive='{"0":{"items":"1"},"480":{"items":"2"},"768":{"items":"3"},"992":{"items":"4"},"1200":{"items":"5"}}'>
+            @{
+                List<ItemProduct> list_discount_products = GetDiscountProducts();
+            }
+            @foreach (var item in list_discount_products)
+            {
+                <div class="product product-style-2 equal-elem ">
+                    <div class="product-thumnail">
+                        <a href="/Products/Detail/@item.Id" title="@item.Name">
+                            <figure><img src="~/Upload/Products/@item.Photo" width="800" height="800" alt="@item.Name"></figure>
+                        </a>
+                        <div class="group-flash">
+                            <span class="flash-item sale-label">sale @item.Discount%</span>
+                        </div>
+                        <div class="wrap-btn">
+                            <a href="/Cart/Buy/@item.Id" class="function-link">Add to cart</a>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <a href="#" class="product-name"><span>@item.Name</span></a>
+                        <div class="wrap-price">
+                            <span class="product-price">
+                                $@(item.Price - (item.Price * item.Discount) / 100)
+                            </span>
+                        </div>
+                        <!-- rating -->
+                        <div class="wrap-price">
+                            <div class="product-price">
+                                <a href="/Products/Rate/@item.Id?star=1" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                <a href="/Products/Rate/@item.Id?star=2" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                <a href="/Products/Rate/@item.Id?star=3" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                <a href="/Products/Rate/@item.Id?star=4" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                <a href="/Products/Rate/@item.Id?star=5" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                            </div>
+                        </div>
+                        <!-- /rating -->
+                    </div>
+                </div>
+            }
+
+
+        </div>
+    </div>
+
+    <!--Latest Products-->
+    <div class="wrap-show-advance-info-box style-1">
+        <h3 class="title-box">Sản phẩm nổi bật</h3>
+        <div class="wrap-top-banner">
+            <a href="#" class="link-banner banner-effect-2">
+                <figure><img src="~/Frontend/images/digital-electronic-banner.jpg" width="1170" height="240" alt=""></figure>
+            </a>
+        </div>
+        <div class="wrap-products">
+            <div class="wrap-product-tab tab-style-1">
+                <div class="tab-contents">
+                    <div class="tab-content-item active" id="digital_1a">
+                        <div class="wrap-products slide-carousel owl-carousel style-nav-1 equal-container" data-items="5" data-loop="false" data-nav="true" data-dots="false" data-responsive='{"0":{"items":"1"},"480":{"items":"2"},"768":{"items":"3"},"992":{"items":"4"},"1200":{"items":"5"}}'>
+
+                            @{
+                                List<ItemProduct> list_hot_products = GetHotProducts();
+                            }
+                            @foreach (var item in list_hot_products)
+                            {
+                                <div class="product product-style-2 equal-elem ">
+                                    <div class="product-thumnail">
+                                        <a href="/Products/Detail/@item.Id" title="@item.Name">
+                                            <figure><img src="~/Upload/Products/@item.Photo" width="800" height="800" alt="@item.Name"></figure>
+                                        </a>
+                                        <div class="group-flash">
+                                            <span class="flash-item sale-label">sale @item.Discount%</span>
+                                        </div>
+                                        <div class="wrap-btn">
+                                            <a href="/Cart/Buy/@item.Id" class="function-link">Add to cart</a>
+                                        </div>
+                                    </div>
+                                    <div class="product-info">
+                                        <a href="#" class="product-name"><span>@item.Name</span></a>
+                                        <div class="wrap-price">
+                                            <span class="product-price">
+                                                $@(item.Price - (item.Price * item.Discount) / 100)
+                                            </span>
+                                        </div>
+                                        <!-- rating -->
+                                        <div class="wrap-price">
+                                            <div class="product-price">
+                                                <a href="/Products/Rate/@item.Id?star=1" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                                <a href="/Products/Rate/@item.Id?star=2" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                                <a href="/Products/Rate/@item.Id?star=3" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                                <a href="/Products/Rate/@item.Id?star=4" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                                <a href="/Products/Rate/@item.Id?star=5" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                            </div>
+                                        </div>
+                                        <!-- /rating -->
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Product Categories-->
+    <div class="wrap-show-advance-info-box style-1">
+        <h3 class="title-box">Sản phẩm theo danh mục</h3>
+        <div class="wrap-top-banner">
+            <a href="#" class="link-banner banner-effect-2">
+                <figure><img src="~/Frontend/images/fashion-accesories-banner.jpg" width="1170" height="240" alt=""></figure>
+            </a>
+        </div>
+        <div class="wrap-products">
+            @{
+                //lấy các danh mục hiển thị trang chủ (DisplayHomePage = 1)
+                List<ItemCategory> list_categories = DisplayHomePageCategories();
+            }
+            @foreach (var item_category in list_categories)
+            {
+                <!-- category -->
+                <div class="wrap-product-tab tab-style-1">
+                    <div class="tab-control">
+                        <a href="#" class="tab-control-item active" style="font-weight: bold; color:red;">@item_category.Name</a>
+                    </div>
+                    <div class="tab-contents">
+
+                        <div class="tab-content-item active" id="fashion_1a">
+                            <div class="wrap-products slide-carousel owl-carousel style-nav-1 equal-container" data-items="5" data-loop="false" data-nav="true" data-dots="false" data-responsive='{"0":{"items":"1"},"480":{"items":"2"},"768":{"items":"3"},"992":{"items":"4"},"1200":{"items":"5"}}'>
+
+                                @{
+                                    List<ItemProduct> list_products = GetProducts(item_category.Id);
+                                }
+                                @foreach (var item in list_products)
+                                {
+                                    <div class="product product-style-2 equal-elem ">
+                                        <div class="product-thumnail">
+                                            <a href="/Products/Detail/@item.Id" title="@item.Name">
+                                                <figure><img src="~/Upload/Products/@item.Photo" width="800" height="800" alt="@item.Name"></figure>
+                                            </a>
+                                            <div class="group-flash">
+                                                <span class="flash-item sale-label">sale @item.Discount%</span>
+                                            </div>
+                                            <div class="wrap-btn">
+                                                <a href="/Cart/Buy/@item.Id" class="function-link">Add to cart</a>
+                                            </div>
+                                        </div>
+                                        <div class="product-info">
+                                            <a href="#" class="product-name"><span>@item.Name</span></a>
+                                            <div class="wrap-price">
+                                                <span class="product-price">
+                                                    $@(item.Price - (item.Price * item.Discount) / 100)
+                                                </span>
+                                            </div>
+                                            <!-- rating -->
+                                            <div class="wrap-price">
+                                                <div class="product-price">
+                                                    <a href="/Products/Rate/@item.Id?star=1" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                                    <a href="/Products/Rate/@item.Id?star=2" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                                    <a href="/Products/Rate/@item.Id?star=3" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                                    <a href="/Products/Rate/@item.Id?star=4" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                                    <a href="/Products/Rate/@item.Id?star=5" style="margin-right: 3px;"><i class="fa fa-star" style="color:#efce4a;"></i></a>
+                                                </div>
+                                            </div>
+                                            <!-- /rating -->
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- /category -->
+            }
+
+        </div>
+    </div>
+
+    <!-- news -->
+    <div class="row" style="margin-bottom: 30px; margin-top: 20px;">
+        <div class="col-lg-12 col-md-6 col-sm-6 col-xs-12">
+            <h4 class="title-box" style="background:#ff2832; color:white; padding:10px;">Tin nổi bật</h4>
+            <div class="our-staff">
+                <div class="slide-carousel owl-carousel style-nav-1 equal-container"
+                     data-items="5"
+                     data-loop="false"
+                     data-nav="true"
+                     data-dots="false"
+                     data-margin="30"
+                     data-responsive='{"0":{"items":"1"},"480":{"items":"2"},"768":{"items":"3"},"992":{"items":"3"},"1200":{"items":"4"}}'>
+                    @{
+                        List<ItemNews> list_news = GetHotNews();
+                    }
+                    @foreach (var item in list_news)
+                    {
+                        <div class="team-member equal-elem">
+                            <div class="media">
+                                <a href="/News/Detail/@item.Id">
+                                    <figure><img src="~/Upload/News/@item.Photo" style="max-height: 80px;"></figure>
+                                </a>
+                            </div>
+                            <div class="info" style="height: 190px; overflow: hidden;">
+                                <div style="font-weight: bold; margin-top: 10px; margin-bottom: 5px;"><a href="/News/Detail/@item.Id">@item.Name</a></div>
+                                <p class="desc">@Html.Raw(item.Description)</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- /news -->
+
+</div>
